@@ -17,6 +17,3 @@ sudo sed 's/#master: salt/master: '${1}'/g' /vagrant/$min_name.conf | sudo tee /
 echo 'Starting Salt Minion'
 nohup sudo salt-minion > /dev/null 2>&1 &
 echo 'Salt Minion started'
-
-echo 'Call state.highstate command to configure minion'
-sudo salt-call state.highstate
