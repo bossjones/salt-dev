@@ -6,14 +6,21 @@ Vagrant::Config.run do |config|
   # options are documented and commented below. For a complete reference,
   # please see the online documentation at vagrantup.com.
 
+  # Every Vagrant virtual environment requires a box to build off of.
+  config.vm.box = "base"
+
+  # The url from where the 'config.vm.box' box will be fetched if it
+  # doesn't already exist on the user's system.
+  config.vm.box_url = "http://files.vagrantup.com/precise32.box"
+
   # Configure the Salt Master VM
   config.vm.define :master do |master_config|
     # Configure the host name
     master_config.vm.host_name = "master.example.com"
     # Configure the box
-    master_config.vm.box = "oneiric-salt096"
+    master_config.vm.box = "base"
     # Setup the network
-    master_config.vm.network :hostonly, "192.168.1.10"
+    master_config.vm.network :hostonly, "10.0.0.10"
     # Setup the script provisioner
     master_config.vm.provision :shell, :path => "master_setup.sh"
   end
@@ -23,19 +30,16 @@ Vagrant::Config.run do |config|
     # Configure the host name
     minion_config.vm.host_name = "minion.example.com"
     # Configure the box
-    minion_config.vm.box = "oneiric-salt096"
+    minion_config.vm.box = "base"
     # Setup the network
-    minion_config.vm.network :hostonly, "192.168.1.11"
+    minion_config.vm.network :hostonly, "10.0.0.11"
+    minion_config.vm.forward_port 80, 9000
     # Setup the script provisioner
     minion_config.vm.provision :shell do |shell|
       shell.path = "minion_setup.sh"
-      shell.args = "192.168.1.10"
+      shell.args = "10.0.0.10"
     end
   end
-
-  # The url from where the 'config.vm.box' box will be fetched if it
-  # doesn't already exist on the user's system.
-  # config.vm.box_url = "http://domain.com/path/to/above.box"
 
   # Boot with a GUI so you can see the screen. (Default is headless)
   # config.vm.boot_mode = :gui
@@ -44,7 +48,7 @@ Vagrant::Config.run do |config|
   # via the IP. Host-only networks can talk to the host machine as well as
   # any other machines on the same network, but cannot be accessed (through this
   # network interface) by any external networks.
-  # config.vm.network :hostonly, "33.33.33.10"
+  # config.vm.network :hostonly, "192.168.33.10"
 
   # Assign this VM to a bridged network, allowing you to connect directly to a
   # network using the host's network device. This makes the VM appear as another
@@ -63,7 +67,7 @@ Vagrant::Config.run do |config|
   # Enable provisioning with Puppet stand alone.  Puppet manifests
   # are contained in a directory path relative to this Vagrantfile.
   # You will need to create the manifests directory and a manifest in
-  # the file oneric-32.pp in the manifests_path directory.
+  # the file base.pp in the manifests_path directory.
   #
   # An example Puppet manifest to provision the message of the day:
   #
@@ -73,22 +77,27 @@ Vagrant::Config.run do |config|
   # #
   # # File { owner => 0, group => 0, mode => 0644 }
   # #
-  # # file { '/etc/motd'
+  # # file { '/etc/motd':
   # #   content => "Welcome to your Vagrant-built virtual machine!
   # #               Managed by Puppet.\n"
   # # }
   #
   # config.vm.provision :puppet do |puppet|
   #   puppet.manifests_path = "manifests"
-  #   puppet.manifest_file  = "oneric-32.pp"
+  #   puppet.manifest_file  = "base.pp"
   # end
 
-  # Enable provisioning with chef solo, specifying a cookbooks path (relative
-  # to this Vagrantfile), and adding some recipes and/or roles.
+  # Enable provisioning with chef solo, specifying a cookbooks path, roles
+  # path, and data_bags path (all relative to this Vagrantfile), and adding 
+  # some recipes and/or roles.
   #
   # config.vm.provision :chef_solo do |chef|
-  #  chef.cookbooks_path = "cookbooks"
-  #  chef.add_recipe "apt"
+  #   chef.cookbooks_path = "../my-recipes/cookbooks"
+  #   chef.roles_path = "../my-recipes/roles"
+  #   chef.data_bags_path = "../my-recipes/data_bags"
+  #   chef.add_recipe "mysql"
+  #   chef.add_role "web"
+  #
   #   # You may also specify custom JSON attributes:
   #   chef.json = { :mysql_password => "foo" }
   # end
